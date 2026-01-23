@@ -131,7 +131,7 @@ export async function POST(request) {
 
     const apiData = await response.json()
   //26.1.24에 추가한 코드  
-  onsole.log('=== API 전체 응답 ===')
+  console.log('=== API 전체 응답 ===')
   console.log(JSON.stringify(apiData, null, 2))
 
   if (apiData.data && apiData.data.length > 0) {
