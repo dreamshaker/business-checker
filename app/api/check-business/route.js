@@ -131,12 +131,12 @@ export async function POST(request) {
 
     const apiData = await response.json()
   //26.1.24에 추가한 코드  
-  console.log('=== API 전체 응답 ===')
-  console.log(JSON.stringify(apiData, null, 2))
+      console.log('=== API 전체 응답 ===')
+      console.log(JSON.stringify(apiData, null, 2))
 
   if (apiData.data && apiData.data.length > 0) {
-    console.log('=== 첫 번째 사업자 데이터 ===')
-    console.log(JSON.stringify(apiData.data[0], null, 2))
+      console.log('=== 첫 번째 사업자 데이터 ===')
+      console.log(JSON.stringify(apiData.data[0], null, 2))
   }
 
     // ------------------------------------------------
