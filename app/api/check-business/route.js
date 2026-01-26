@@ -142,40 +142,109 @@ export async function POST(request) {
     // ------------------------------------------------
     // 📍 API 응답 처리
     // ------------------------------------------------
-    if (apiData.status_code === 'OK' && apiData.data && apiData.data.length > 0) {
-      const businessInfo = apiData.data[0]
-      
-      // 상태 코드 변환
-      let status = '알 수 없음'
-      if (businessInfo.b_stt === '01') status = '계속사업자'
-      else if (businessInfo.b_stt === '02') status = '휴업'
-      else if (businessInfo.b_stt === '03') status = '폐업'
-      
-      // 과세 유형 변환
-      let taxType = '알 수 없음'
-      if (businessInfo.tax_type === '01') taxType = '일반과세자'
-      else if (businessInfo.tax_type === '02') taxType = '간이과세자'
-      
-      return NextResponse.json({
-        success: true,
-        data: {
-          businessNumber: businessInfo.b_no || businessNumber,
-          businessName: businessInfo.p_nm || businessInfo.company || '정보 없음',
-          status: status,
-          openDate: businessInfo.start_dt || '정보 없음',
-          taxType: taxType,
-          representative: businessInfo.p_nm || '정보 없음',
-          address: businessInfo.addr || '정보 없음',
-          closeDate: businessInfo.end_dt || null
-        }
-      })
-    } else {
-      return NextResponse.json(
-        { success: false, message: '등록되지 않은 사업자등록번호이거나 조회할 수 없습니다.' },
-        { status: 404 }
-      )
+if (apiData.status_code === 'OK' && apiData.data && apiData.data.length > 0) {
+  const businessInfo = apiData.data[0]
+  
+  // 사업자 상태 변환
+  let status = '확인 필요'
+  let statusColor = 'gray' // UI용 색상
+  
+  // b_stt_cd 코드로 판단 (우선)
+  if (businessInfo.b_stt_cd === '01') {
+    status = '계속사업자'
+    statusColor = 'green'
+  } else if (businessInfo.b_stt_cd === '02') {
+    status = '휴업자'
+    statusColor = 'yellow'
+  } else if (businessInfo.b_stt_cd === '03') {
+    status = '폐업자'
+    statusColor = 'red'
+  }
+  // b_stt 텍스트로 판단 (보조)
+  else if (businessInfo.b_stt) {
+    const sttText = businessInfo.b_stt.toLowerCase()
+    if (sttText.includes('계속') || sttText.includes('사업')) {
+      status = '계속사업자'
+      statusColor = 'green'
+    } else if (sttText.includes('휴업')) {
+      status = '휴업자'
+      statusColor = 'yellow'
+    } else if (sttText.includes('폐업')) {
+      status = '폐업자'
+      statusColor = 'red'
     }
-    
+  }
+  
+  // 과세유형 변환
+  let taxType = '확인 필요'
+  
+  // tax_type_cd 코드로 판단 (우선)
+  if (businessInfo.tax_type_cd === '01') {
+    taxType = '일반과세자'
+  } else if (businessInfo.tax_type_cd === '02') {
+    taxType = '간이과세자'
+  } else if (businessInfo.tax_type_cd === '03') {
+    taxType = '면세사업자'
+  } else if (businessInfo.tax_type_cd === '04') {
+    taxType = '비영리법인'
+  }
+  // tax_type 텍스트로 판단 (보조)
+  else if (businessInfo.tax_type) {
+    const taxText = businessInfo.tax_type.toLowerCase()
+    if (taxText.includes('일반')) {
+      taxType = '일반과세자'
+    } else if (taxText.includes('간이')) {
+      taxType = '간이과세자'
+    } else if (taxText.includes('면세')) {
+      taxType = '면세사업자'
+    }
+  }
+  
+  // 개업일 포맷팅 (YYYYMMDD → YYYY-MM-DD)
+  let openDate = '정보 없음'
+  if (businessInfo.start_dt) {
+    const dt = businessInfo.start_dt
+    if (dt.length === 8) {
+      openDate = `${dt.substring(0, 4)}-${dt.substring(4, 6)}-${dt.substring(6, 8)}`
+    } else {
+      openDate = dt
+    }
+  }
+  
+  // 폐업일 포맷팅
+  let closeDate = null
+  if (businessInfo.end_dt && businessInfo.end_dt !== '') {
+    const dt = businessInfo.end_dt
+    if (dt.length === 8) {
+      closeDate = `${dt.substring(0, 4)}-${dt.substring(4, 6)}-${dt.substring(6, 8)}`
+    } else {
+      closeDate = dt
+    }
+  }
+  
+  // 사업자번호 포맷팅 (XXXXXXXXXX → XXX-XX-XXXXX)
+  let formattedNumber = businessInfo.b_no || businessNumber
+  if (formattedNumber.length === 10) {
+    formattedNumber = `${formattedNumber.substring(0, 3)}-${formattedNumber.substring(3, 5)}-${formattedNumber.substring(5, 10)}`
+  }
+  
+  return NextResponse.json({
+    success: true,
+    data: {
+      businessNumber: formattedNumber,
+      status: status,
+      statusColor: statusColor, // UI에서 색상 결정용
+      taxType: taxType,
+      openDate: openDate,
+      closeDate: closeDate
+    }
+  })
+} else {
+  return NextResponse.json(
+    { success: false, message: '등록되지 않은 사업자등록번호이거나 조회할 수 없습니다.' },
+    { status: 404 }
+  )
+}
 
   } catch (error) {
     // ------------------------------------------------

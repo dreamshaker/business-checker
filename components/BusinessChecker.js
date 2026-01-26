@@ -50,11 +50,11 @@ export default function BusinessChecker() {
    * @returns {string} Tailwind CSS 클래스명
    */
   const getStatusColor = (status) => {
-    if (status === '계속사업자') return 'text-green-600'
-    if (status === '휴업') return 'text-yellow-600'
-    if (status === '폐업') return 'text-red-600'
-    return 'text-gray-600'
-  }
+    if (status === '계속사업자') return 'text-green-600 bg-green-50 border-green-200'
+    if (status === '휴업자') return 'text-yellow-600 bg-yellow-50 border-yellow-200'
+    if (status === '폐업자') return 'text-red-600 bg-red-50 border-red-200'
+    return 'text-gray-600 bg-gray-50 border-gray-200'
+}
 
   /**
    * 사업자 상태에 따른 아이콘 반환
@@ -271,138 +271,73 @@ export default function BusinessChecker() {
               data-screen-section="results-section"
             >
               {/* 결과 헤더 */}
-              <div 
-                className="flex items-start justify-between mb-4"
-                data-element="result-header"
-              >
-                <div data-element="company-info">
-                  <h2 
-                    className="text-2xl font-bold text-gray-800"
-                    data-element="company-name"
-                  >
-                    {result.businessName}
-                  </h2>
-                  <p 
-                    className="text-gray-500 text-sm mt-1"
-                    data-element="business-number-display"
-                  >
-                    {result.businessNumber}
-                  </p>
-                </div>
-                
-                <div 
-                  className={`flex items-center gap-2 px-3 py-1 rounded-full ${getStatusColor(result.status)} bg-opacity-10`}
-                  data-element="status-badge"
-                  data-status={result.status}
-                >
+            <div className="mb-6" data-element="result-header">
+              {/* 사업자번호 */}
+              <div className="text-center mb-4">
+                <p className="text-sm text-gray-500 mb-2">사업자등록번호</p>
+                <h2 className="text-3xl font-bold text-gray-800" data-element="business-number-display">
+                  {result.businessNumber}
+                </h2>
+              </div>
+              
+              {/* 사업자 상태 */}
+              <div className="flex justify-center">
+                <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${getStatusColor(result.status)} bg-opacity-10`}
+                    data-element="status-badge" data-status={result.status}>
                   {getStatusIcon(result.status)}
-                  <span className="font-semibold">{result.status}</span>
+                  <span className="font-semibold text-lg">{result.status}</span>
                 </div>
               </div>
+            </div>
 
               {/* 상세 정보 테이블 */}
-              <div 
-                className="space-y-3 mt-6"
-                data-element="detail-table"
-              >
-                {/* 대표자명 */}
-                <div 
-                  className="flex border-b border-gray-100 pb-3"
-                  data-row="representative"
-                >
-                  <span 
-                    className="w-32 text-gray-600 font-medium"
-                    data-element="label"
-                  >
-                    대표자명
-                  </span>
-                  <span 
-                    className="text-gray-800"
-                    data-element="value"
-                  >
-                    {result.representative}
-                  </span>
+              <div className="space-y-4 mt-6" data-element="detail-table">
+                {/* 과세유형 */}
+                <div className="bg-gray-50 rounded-lg p-4" data-row="tax-type">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 font-medium" data-element="label">
+                      과세유형
+                    </span>
+                    <span className="text-gray-800 font-semibold" data-element="value">
+                      {result.taxType}
+                    </span>
+                  </div>
                 </div>
                 
                 {/* 개업일자 */}
-                <div 
-                  className="flex border-b border-gray-100 pb-3"
-                  data-row="open-date"
-                >
-                  <span 
-                    className="w-32 text-gray-600 font-medium"
-                    data-element="label"
-                  >
-                    개업일자
-                  </span>
-                  <span 
-                    className="text-gray-800 flex items-center gap-2"
-                    data-element="value"
-                  >
-                    <Calendar className="w-4 h-4" aria-hidden="true" />
-                    {result.openDate}
-                  </span>
+                <div className="bg-gray-50 rounded-lg p-4" data-row="open-date">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600 font-medium" data-element="label">
+                      개업일자
+                    </span>
+                    <span className="text-gray-800 font-semibold flex items-center gap-2" data-element="value">
+                      <Calendar className="w-4 h-4" aria-hidden="true" />
+                      {result.openDate}
+                    </span>
+                  </div>
                 </div>
                 
                 {/* 폐업일자 (조건부) */}
                 {result.closeDate && (
-                  <div 
-                    className="flex border-b border-gray-100 pb-3"
-                    data-row="close-date"
-                  >
-                    <span 
-                      className="w-32 text-gray-600 font-medium"
-                      data-element="label"
-                    >
-                      폐업일자
-                    </span>
-                    <span 
-                      className="text-gray-800 flex items-center gap-2"
-                      data-element="value"
-                    >
-                      <Calendar className="w-4 h-4" aria-hidden="true" />
-                      {result.closeDate}
-                    </span>
+                  <div className="bg-red-50 rounded-lg p-4" data-row="close-date">
+                    <div className="flex items-center justify-between">
+                      <span className="text-red-600 font-medium" data-element="label">
+                        폐업일자
+                      </span>
+                      <span className="text-red-800 font-semibold flex items-center gap-2" data-element="value">
+                        <Calendar className="w-4 h-4" aria-hidden="true" />
+                        {result.closeDate}
+                      </span>
+                    </div>
                   </div>
                 )}
-                
-                {/* 과세유형 */}
-                <div 
-                  className="flex border-b border-gray-100 pb-3"
-                  data-row="tax-type"
-                >
-                  <span 
-                    className="w-32 text-gray-600 font-medium"
-                    data-element="label"
-                  >
-                    과세유형
-                  </span>
-                  <span 
-                    className="text-gray-800"
-                    data-element="value"
-                  >
-                    {result.taxType}
-                  </span>
-                </div>
-                
-                {/* 사업장주소 */}
-                <div 
-                  className="flex pb-3"
-                  data-row="address"
-                >
-                  <span 
-                    className="w-32 text-gray-600 font-medium"
-                    data-element="label"
-                  >
-                    사업장주소
-                  </span>
-                  <span 
-                    className="text-gray-800"
-                    data-element="value"
-                  >
-                    {result.address}
-                  </span>
-                </div>
+              </div>
+
+              {/* API 제공 정보 안내 */}
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-800 text-center">
+                  ℹ️ 국세청 공공 API는 개인정보 보호를 위해 사업자번호, 상태, 과세유형, 개업일만 제공합니다.
+                </p>
               </div>
             </section>
           )}
